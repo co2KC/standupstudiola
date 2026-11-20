@@ -33,20 +33,11 @@ async function api(path) {
 }
 
 async function loadCatalog() {
-  try {
-    const [products, instructors] = await Promise.all([
-      api("products?select=id,slug,name,kind,theme,description,duration_minutes,price_cents,capacity,image_url,product_dates(starts_at,ends_at),product_instructors(person_id)&status=eq.published"),
-      api("public_instructors?select=id,first_name,last_name,bio,website_url"),
-    ]);
-    return { products, instructors, preview: false };
-  } catch (err) {
-    // TEMPORARY: until the studio schema is exposed in Supabase's API settings,
-    // show a snapshot so the page can be reviewed. Delete this fallback
-    // (and /data/preview.json) once the live read works.
-    console.warn("Live catalog unavailable, showing preview snapshot.", err);
-    const snap = await fetch("/data/preview.json").then((r) => r.json());
-    return { ...snap, preview: true };
-  }
+  const [products, instructors] = await Promise.all([
+    api("products?select=id,slug,name,kind,theme,description,duration_minutes,price_cents,capacity,image_url,product_dates(starts_at,ends_at),product_instructors(person_id)&status=eq.published"),
+    api("public_instructors?select=id,first_name,last_name,bio,website_url"),
+  ]);
+  return { products, instructors };
 }
 
 function classDates(dates) {
