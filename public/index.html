@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Standup Studio LA | Standup comedy classes and private lessons in Los Angeles</title>
   <meta name="description" content="Monthly Saturday group classes and one-on-one coaching with working LA comics. No experience needed.">
-  <meta name="theme-color" content="#0B0B0B">
+  <meta name="theme-color" content="#C9B341">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -27,14 +27,44 @@
 
 <main>
 
-  <section class="hero">
-    <div class="wrap">
-      <p class="kicker">Standup comedy classes in Los Angeles</p>
-      <h1 class="paint">Get ready for the stage.</h1>
-      <p class="lede">Join this month's small-group class, or work one-on-one with a working LA comic. No experience needed. No material needed. We'll guide you through everything.</p>
-      <div class="cta-row">
-        <a class="btn btn-gold" href="#class">This month's class</a>
-        <a class="btn btn-line" href="#lessons">Private lessons</a>
+  <section class="hero mustard">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="kicker">Standup comedy classes &middot; Los Angeles</p>
+        <h1 class="paint">Get ready for the stage.</h1>
+        <p class="lede">Join this month's small-group class, or work one-on-one with a working LA comic. No experience needed. No material needed. We'll guide you through everything.</p>
+        <div class="cta-row">
+          <a class="btn" href="#class">This month's class</a>
+          <a class="btn btn-line" href="#lessons">Private lessons</a>
+        </div>
+      </div>
+      <!-- The stage: mic on the left, stool on the right, this month's art in the middle (set from the class's image). -->
+      <div class="stage" aria-hidden="true">
+        <svg class="stage-props" viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg">
+          <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="2.2"/></filter>
+          <g filter="url(#rough)" fill="#161512" stroke="#161512">
+            <!-- mic stand -->
+            <ellipse cx="78" cy="496" rx="58" ry="9" stroke="none"/>
+            <rect x="74" y="150" width="8" height="346" stroke="none"/>
+            <rect x="68" y="138" width="20" height="26" rx="4" stroke="none"/>
+            <g transform="rotate(-38 78 150)"><rect x="70" y="141" width="84" height="18" rx="6" stroke="none"/><ellipse cx="170" cy="150" rx="27" ry="23" stroke="none"/></g>
+            <!-- stool -->
+            <path d="M372 356 L350 506 M436 356 L458 506 M392 358 L384 506 M416 358 L424 506" stroke-width="9" stroke-linecap="round" fill="none"/>
+            <ellipse cx="404" cy="440" rx="50" ry="8" fill="none" stroke-width="6"/>
+            <ellipse cx="404" cy="352" rx="72" ry="15" stroke="none"/>
+            <rect x="332" y="352" width="144" height="10" stroke="none"/>
+            <ellipse cx="404" cy="362" rx="72" ry="15" stroke="none"/>
+          </g>
+          <!-- water bottle and notepad -->
+          <g filter="url(#rough)">
+            <rect x="360" y="282" width="24" height="62" rx="6" fill="#E9EEF0" stroke="#161512" stroke-width="3"/>
+            <rect x="366" y="270" width="12" height="13" rx="2" fill="#161512"/>
+            <rect x="360" y="304" width="24" height="16" fill="#161512"/>
+            <path d="M396 338 L452 330 L462 346 L404 355 Z" fill="#F7F6EC" stroke="#161512" stroke-width="3"/>
+            <path d="M412 344 L448 337" stroke="#161512" stroke-width="4" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <div id="hero-art" class="stage-art"></div>
       </div>
     </div>
   </section>
@@ -92,7 +122,7 @@
         <input id="su-name" name="first_name" type="text" placeholder="First name" autocomplete="given-name">
         <label class="sr" for="su-email">Email</label>
         <input id="su-email" name="email" type="email" placeholder="Email" autocomplete="email" required>
-        <button class="btn btn-gold" type="submit">Sign me up</button>
+        <button class="btn btn-mustard" type="submit">Sign me up</button>
         <p class="form-note" id="signup-note" role="status"></p>
       </form>
     </div></div>

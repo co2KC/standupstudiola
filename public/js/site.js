@@ -35,7 +35,7 @@ async function api(path) {
 async function loadCatalog() {
   try {
     const [products, instructors] = await Promise.all([
-      api("products?select=id,slug,name,kind,theme,description,duration_minutes,price_cents,capacity,product_dates(starts_at,ends_at),product_instructors(person_id)&status=eq.published"),
+      api("products?select=id,slug,name,kind,theme,description,duration_minutes,price_cents,capacity,image_url,product_dates(starts_at,ends_at),product_instructors(person_id)&status=eq.published"),
       api("public_instructors?select=id,first_name,last_name,bio,website_url"),
     ]);
     return { products, instructors, preview: false };
@@ -83,7 +83,8 @@ function renderClass(products, people) {
   const teacherIds = (p.product_instructors || []).map((l) => l.person_id);
   const teachers = teacherIds.map((id) => people.get(id)).filter(Boolean).map(fullName);
   slot.innerHTML = `
-    <article class="feature">
+    <article class="feature mustard${p.image_url ? " has-art" : ""}">
+      ${p.image_url ? `<div class="feature-art"><img src="${esc(p.image_url)}" alt="" loading="lazy"></div>` : ""}
       <div class="feature-main">
         ${p.theme ? `<span class="tag">This month's theme: ${esc(p.theme)}</span>` : ""}
         <h3>${esc(p.name)}</h3>
@@ -94,10 +95,12 @@ function renderClass(products, people) {
       <div class="feature-buy">
         <span class="bigprice">${money(p.price_cents)}</span>
         <span>for all ${d.count} sessions</span>
-        ${buyButton(p, "btn-gold")}
+        ${buyButton(p, "btn-mustard")}
         <p class="buy-note" role="status"></p>
       </div>
     </article>`;
+  // This month's art (the stacked animals) also goes on the hero stage, between the mic and the stool.
+  if (p.image_url) $("hero-art").innerHTML = `<img src="${esc(p.image_url)}" alt="">`;
   return teacherIds;
 }
 
