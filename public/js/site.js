@@ -16,7 +16,6 @@ const PHOTOS = {
   "jim-mccaffree": IMG + "2026/04/JIM-MCCAFFREE-2.jpg",
   "alice-cutler": IMG + "2026/05/ALICE-CUTLER-PROFILE.jpg",
 };
-const CLASS_PHOTO = IMG + "2026/04/GROUPS-GENERAL-PROMO-2.jpg";
 
 const TZ = "America/Los_Angeles";
 const $ = (id) => document.getElementById(id);
@@ -50,83 +49,102 @@ async function loadCatalog() {
   }
 }
 
-function dateLine(dates) {
-  const sorted = [...dates].sort((a, b) => a.starts_at.localeCompare(b.starts_at));
-  if (!sorted.length) return "";
+function classDates(dates) {
+  const sorted = [...dates].sort((x, y) => x.starts_at.localeCompare(y.starts_at));
+  const wd = new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "short" });
   const day = new Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "short", day: "numeric" });
   const time = new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour: "numeric", minute: "2-digit" });
   const clock = (iso) => time.format(new Date(iso)).replace(":00", "").replace("12 PM", "Noon");
   const first = sorted[0];
-  const when = first.ends_at ? `${clock(first.starts_at)} to ${clock(first.ends_at)} Pacific` : `${clock(first.starts_at)} Pacific`;
-  return { days: sorted.map((d) => day.format(new Date(d.starts_at))).join(", "), when, count: sorted.length };
+  return {
+    chips: sorted.map((d) => `<li><small>${wd.format(new Date(d.starts_at))}</small><b>${day.format(new Date(d.starts_at))}</b></li>`).join(""),
+    when: first.ends_at ? `${clock(first.starts_at)} to ${clock(first.ends_at)} Pacific` : `${clock(first.starts_at)} Pacific`,
+    count: sorted.length,
+  };
 }
 
-function buyButton(product) {
-  return `<button class="btn" type="button" data-buy="${esc(product.slug)}">Sign me up</button>`;
-}
+const buyButton = (product, cls = "") => `<button class="btn ${cls}" type="button" data-buy="${esc(product.slug)}">Sign me up</button>`;
 
 function renderClass(products, people) {
   const now = Date.now();
-  // The class to feature: the published class whose last date is still ahead, soonest first.
+  // Feature the published class whose last meeting is still ahead, soonest first.
   const classes = products
     .filter((p) => p.kind === "class" && p.product_dates?.length)
     .map((p) => ({ p, first: Math.min(...p.product_dates.map((d) => Date.parse(d.starts_at))), last: Math.max(...p.product_dates.map((d) => Date.parse(d.starts_at))) }))
     .filter((c) => c.last >= now)
-    .sort((a, b) => a.first - b.first);
+    .sort((x, y) => x.first - y.first);
   const slot = $("class-slot");
   if (!classes.length) {
-    slot.innerHTML = `<p class="empty">The next class will be posted here soon. Join the newsletter below to hear first.</p>`;
-    return;
+    slot.innerHTML = `<p class="empty">The next class will be posted here soon. Join the list below to hear first.</p>`;
+    return [];
   }
   const p = classes[0].p;
-  const d = dateLine(p.product_dates);
-  const teachers = (p.product_instructors || []).map((l) => people.get(l.person_id)).filter(Boolean).map(fullName);
+  const d = classDates(p.product_dates);
+  const teacherIds = (p.product_instructors || []).map((l) => l.person_id);
+  const teachers = teacherIds.map((id) => people.get(id)).filter(Boolean).map(fullName);
   slot.innerHTML = `
-    <article class="class-card">
-      <img src="${CLASS_PHOTO}" alt="Standup Studio LA group classes" width="800" height="800" loading="lazy">
-      <div>
-        ${p.theme ? `<span class="tag">This month: ${esc(p.theme)}</span>` : ""}
-        <h3>${esc(p.name)} group class</h3>
+    <article class="feature">
+      <div class="feature-main">
+        ${p.theme ? `<span class="tag">This month's theme: ${esc(p.theme)}</span>` : ""}
+        <h3>${esc(p.name)}</h3>
+        <ol class="dates">${d.chips}</ol>
+        <p class="facts"><strong>${esc(d.when)}</strong>${teachers.length ? ` &middot; taught by <strong>${esc(teachers.join(" & "))}</strong>` : ""}${p.capacity ? ` &middot; only ${p.capacity} spots` : ""}</p>
         ${p.description ? `<p>${esc(p.description)}</p>` : ""}
-        <ul>
-          <li>${d.count} Saturdays: ${esc(d.days)}</li>
-          <li>${esc(d.when)}</li>
-          ${teachers.length ? `<li>Taught by ${esc(teachers.join(" & "))}</li>` : ""}
-          ${p.capacity ? `<li>Only ${p.capacity} spots</li>` : ""}
-        </ul>
-        <div class="buy"><span class="price">${money(p.price_cents)}</span> &nbsp; ${buyButton(p)}</div>
+      </div>
+      <div class="feature-buy">
+        <span class="bigprice">${money(p.price_cents)}</span>
+        <span>for all ${d.count} sessions</span>
+        ${buyButton(p, "btn-gold")}
         <p class="buy-note" role="status"></p>
       </div>
     </article>`;
+  return teacherIds;
 }
 
-function renderLessons(products, people) {
-  const lessons = products.filter((p) => p.kind === "private_lesson");
+// Bios end with optional "Focus: ..." and "Skill Level: ..." lines; pull those out as card facts.
+function splitBio(bio) {
+  const facts = {}; const paras = [];
+  for (const line of (bio || "").split(/\n+/)) {
+    const m = line.match(/^(Focus|Skill Level):\s*(.+)$/i);
+    if (m) facts[m[1].toLowerCase()] = m[2].replace(/[,\s]+$/, ""); else if (line.trim()) paras.push(line.trim());
+  }
+  return { facts, paras };
+}
+
+function renderLessons(products, people, firstIds) {
   const slot = $("lessons-slot");
-  if (!lessons.length) {
+  const cards = products.filter((p) => p.kind === "private_lesson").map((p) => {
+    const person = (p.product_instructors || []).map((l) => people.get(l.person_id)).find(Boolean);
+    return person ? { p, person } : null;
+  }).filter(Boolean);
+  if (!cards.length) {
     slot.innerHTML = `<p class="empty">Private lessons will be posted here soon.</p>`;
     return;
   }
-  const cards = lessons.map((p) => {
-    const person = (p.product_instructors || []).map((l) => people.get(l.person_id)).find(Boolean);
-    if (!person) return "";
+  // This month's class teachers first, then everyone else by name.
+  const rank = (c) => (firstIds.includes(c.person.id) ? 0 : 1);
+  cards.sort((x, y) => rank(x) - rank(y) || fullName(x.person).localeCompare(fullName(y.person)));
+  slot.innerHTML = cards.map(({ p, person }) => {
     const photo = PHOTOS[slugName(person)];
-    const bio = (person.bio || "").split(/\n+/).map((line) => `<p>${esc(line)}</p>`).join("");
-    return { name: fullName(person), html: `
-      <article class="lesson">
-        ${photo ? `<img src="${photo}" alt="${esc(fullName(person))}" width="400" height="400" loading="lazy">` : "<div></div>"}
-        <div>
-          <h3>Private coaching with ${esc(fullName(person))}</h3>
-          <div class="bio">${bio}</div>
+    const { facts, paras } = splitBio(person.bio);
+    return `
+      <article class="coach">
+        ${photo ? `<img src="${photo}" alt="${esc(fullName(person))}" width="600" height="600" loading="lazy">` : ""}
+        <div class="coach-body">
+          <h3>${esc(fullName(person))}</h3>
+          <dl>
+            ${facts.focus ? `<dt>Focus</dt><dd>${esc(facts.focus)}</dd>` : ""}
+            ${facts["skill level"] ? `<dt>Best for</dt><dd>${esc(facts["skill level"])}</dd>` : ""}
+          </dl>
+          ${paras.length ? `<details><summary>About ${esc(person.first_name)}</summary>${paras.map((t) => `<p>${esc(t)}</p>`).join("")}</details>` : ""}
           <div class="buy">
-            <span class="price">${money(p.price_cents)} for ${p.duration_minutes} minutes</span>
+            <span class="price"><b>${money(p.price_cents)}</b> <span>/ ${p.duration_minutes} min</span></span>
             ${buyButton(p)}
+            <p class="buy-note" role="status"></p>
           </div>
-          <p class="buy-note" role="status"></p>
         </div>
-      </article>` };
-  }).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
-  slot.innerHTML = cards.map((c) => c.html).join("");
+      </article>`;
+  }).join("");
 }
 
 // Checkout is not built yet. This is where the button will hand off to Stripe.
@@ -147,8 +165,8 @@ $("year").textContent = new Date().getFullYear();
 
 loadCatalog().then(({ products, instructors }) => {
   const people = new Map(instructors.map((i) => [i.id, i]));
-  renderClass(products, people);
-  renderLessons(products, people);
+  const teacherIds = renderClass(products, people);
+  renderLessons(products, people, teacherIds);
 }).catch((err) => {
   console.error(err);
   $("class-slot").innerHTML = $("lessons-slot").innerHTML = `<p class="empty">We couldn't load this right now. Please refresh in a moment.</p>`;
