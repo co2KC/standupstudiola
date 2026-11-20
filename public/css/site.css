@@ -108,9 +108,10 @@ p { margin: 0 0 1em; }
 .feature { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); border: 3px solid var(--paint); box-shadow: 8px 8px 0 var(--paint); }
 .feature-main { padding: clamp(20px, 3.4vw, 34px); }
 .feature + .feature { margin-top: 34px; }
-/* With a promo poster: poster on the left, details above the buy bar on the right. */
-.feature.has-art { grid-template-columns: minmax(0, 400px) minmax(0, 1fr); grid-template-rows: 1fr auto; background: var(--white); }
-.feature-art { grid-row: 1 / span 2; width: 100%; height: 100%; object-fit: cover; aspect-ratio: 1; border-right: 3px solid var(--paint); }
+/* With a promo poster: the whole square poster on the left, never cropped; details above the buy bar on the right. */
+.feature.has-art { grid-template-columns: minmax(0, 46%) minmax(0, 1fr); grid-template-rows: 1fr auto; background: var(--tooth), var(--paint); }
+.feature-art { grid-row: 1 / span 2; align-self: center; width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; }
+.has-art .feature-main { background: var(--white); border-left: 3px solid var(--paint); }
 .has-art .feature-buy { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px 24px; padding-top: 20px; padding-bottom: 20px; }
 .has-art .feature-buy .btn { margin-top: 0; }
 .has-art .bigprice { font-size: clamp(44px, 6vw, 60px); }
@@ -180,7 +181,8 @@ details p { margin: 10px 0 0; }
 @media (max-width: 760px) {
   .feature, .feature.has-art, .steps { grid-template-columns: minmax(0, 1fr); }
   .feature.has-art { grid-template-rows: auto; }
-  .feature-art { grid-row: auto; border-right: 0; border-bottom: 3px solid var(--paint); }
+  .feature-art { grid-row: auto; }
+  .has-art .feature-main { border-left: 0; border-top: 3px solid var(--paint); }
   .stage-mic { left: -2%; height: 120%; }
   .stage-stool { right: -4%; height: 80%; }
   .feature-art { padding: 18px 18px 0; }
