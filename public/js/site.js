@@ -35,7 +35,7 @@ async function api(path) {
 async function loadCatalog() {
   const [products, instructors] = await Promise.all([
     api("products?select=id,slug,name,kind,theme,description,duration_minutes,price_cents,capacity,image_url,product_dates(starts_at,ends_at),product_instructors(person_id)&status=eq.published"),
-    api("public_instructors?select=id,first_name,last_name,bio,website_url"),
+    api("public_instructors?select=id,first_name,last_name,bio,website_url,public_email"),
   ]);
   return { products, instructors };
 }
@@ -130,8 +130,9 @@ function renderLessons(products, people, firstIds) {
           ${paras.length ? `<details><summary>About ${esc(person.first_name)}</summary>${paras.map((t) => `<p>${esc(t)}</p>`).join("")}</details>` : ""}
           <div class="buy">
             <span class="price"><b>${money(p.price_cents)}</b> <span>/ ${p.duration_minutes} min</span></span>
-            ${buyButton(p)}
-            <p class="buy-note" role="status"></p>
+            ${person.public_email
+              ? `<a class="btn" href="mailto:${esc(person.public_email)}?subject=${encodeURIComponent("Private lesson via Standup Studio LA")}">Email ${esc(person.first_name)}</a>`
+              : `${buyButton(p)}<p class="buy-note" role="status"></p>`}
           </div>
         </div>
       </article>`;
