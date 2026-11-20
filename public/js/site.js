@@ -56,9 +56,9 @@ function classDates(dates) {
 
 const buyButton = (product, cls = "") => `<button class="btn ${cls}" type="button" data-buy="${esc(product.slug)}">Sign me up</button>`;
 
-function renderClass(products, people) {
+function renderClasses(products, people) {
   const now = Date.now();
-  // Feature the published class whose last meeting is still ahead, soonest first.
+  // Every published class whose last meeting is still ahead, soonest first.
   const classes = products
     .filter((p) => p.kind === "class" && p.product_dates?.length)
     .map((p) => ({ p, first: Math.min(...p.product_dates.map((d) => Date.parse(d.starts_at))), last: Math.max(...p.product_dates.map((d) => Date.parse(d.starts_at))) }))
@@ -69,30 +69,27 @@ function renderClass(products, people) {
     slot.innerHTML = `<p class="empty">The next class will be posted here soon. Join the list below to hear first.</p>`;
     return [];
   }
-  const p = classes[0].p;
-  const d = classDates(p.product_dates);
-  const teacherIds = (p.product_instructors || []).map((l) => l.person_id);
-  const teachers = teacherIds.map((id) => people.get(id)).filter(Boolean).map(fullName);
-  slot.innerHTML = `
-    <article class="feature mustard${p.image_url ? " has-art" : ""}">
-      ${p.image_url ? `<div class="feature-art"><img src="${esc(p.image_url)}" alt="" loading="lazy"></div>` : ""}
+  slot.innerHTML = classes.map(({ p }) => {
+    const d = classDates(p.product_dates);
+    const teachers = (p.product_instructors || []).map((l) => people.get(l.person_id)).filter(Boolean).map(fullName);
+    return `
+    <article class="feature${p.image_url ? " has-art" : " mustard"}">
+      ${p.image_url ? `<img class="feature-art" src="${esc(p.image_url)}" alt="${esc(p.theme || p.name)} promo" width="1080" height="1080" loading="lazy">` : ""}
       <div class="feature-main">
-        ${p.theme ? `<span class="tag">This month's theme: ${esc(p.theme)}</span>` : ""}
-        <h3>${esc(p.name)}</h3>
+        <span class="tag">${esc(p.name)}</span>
+        <h3>${esc(p.theme || p.name)}</h3>
         <ol class="dates">${d.chips}</ol>
         <p class="facts"><strong>${esc(d.when)}</strong>${teachers.length ? ` &middot; taught by <strong>${esc(teachers.join(" & "))}</strong>` : ""}${p.capacity ? ` &middot; only ${p.capacity} spots` : ""}</p>
         ${p.description ? `<p>${esc(p.description)}</p>` : ""}
       </div>
       <div class="feature-buy">
-        <span class="bigprice">${money(p.price_cents)}</span>
-        <span>for all ${d.count} sessions</span>
-        ${buyButton(p, "btn-mustard")}
-        <p class="buy-note" role="status"></p>
+        <div><span class="bigprice">${money(p.price_cents)}</span><span class="per">for all ${d.count} sessions</span></div>
+        <div>${buyButton(p, "btn-mustard")}<p class="buy-note" role="status"></p></div>
       </div>
     </article>`;
-  // This month's art (the stacked animals) also goes on the hero stage, between the mic and the stool.
-  if (p.image_url) $("hero-art").innerHTML = `<img src="${esc(p.image_url)}" alt="">`;
-  return teacherIds;
+  }).join("");
+  // Coaches teaching the soonest class are listed first in private lessons.
+  return (classes[0].p.product_instructors || []).map((l) => l.person_id);
 }
 
 // Bios end with optional "Focus: ..." and "Skill Level: ..." lines; pull those out as card facts.
@@ -159,7 +156,7 @@ $("year").textContent = new Date().getFullYear();
 
 loadCatalog().then(({ products, instructors }) => {
   const people = new Map(instructors.map((i) => [i.id, i]));
-  const teacherIds = renderClass(products, people);
+  const teacherIds = renderClasses(products, people);
   renderLessons(products, people, teacherIds);
 }).catch((err) => {
   console.error(err);
