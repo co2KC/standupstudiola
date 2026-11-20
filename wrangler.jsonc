@@ -1,0 +1,7 @@
+{
+  // Cloudflare Workers, static assets only for now.
+  // The checkout and webhook Worker gets added here as "main" when it is built.
+  "name": "standupstudiola",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./public" }
+}

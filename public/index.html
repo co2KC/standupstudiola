@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Standup Studio LA | Standup comedy classes and private lessons in Los Angeles</title>
+  <meta name="description" content="Standup Studio LA is where students find instructors, and vice versa. Monthly Saturday group classes and private lessons with working LA comics.">
+  <meta name="theme-color" content="#EDEEE1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="logo" href="/" aria-label="Standup Studio LA home">
+      <img src="https://standupstudiola.com/wp-content/uploads/2026/04/TITLE-white.png" alt="Standup Studio LA" width="150" height="19">
+    </a>
+    <nav aria-label="Main">
+      <a href="#class">Group Classes</a>
+      <a href="#lessons">Private Lessons</a>
+      <a href="#friends">Friends</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <img src="https://standupstudiola.com/wp-content/uploads/2026/04/GENERAL-HEADER.jpg" alt="Standup Studio LA: a microphone and a stool on stage" width="1500" height="700">
+  </section>
+
+  <section class="band narrow center">
+    <h1 class="paint">What is Standup Studio LA?</h1>
+    <p>Standup Studio LA is where students find instructors, and vice versa. It's a simple concept: Instructors post who they are and what they do out here, and folks wanting to learn comedy can get matched to comedy instructors they want to work with. You can book their services right here from the site, and get started on your comedy journey!</p>
+    <p>Classes can be taught in-person, on Zoom, in group settings or private. It is up to the instructor and the student. If you want to see a class that is not currently being offered, just let us know. We will do our best to find a comedian to fill that void.</p>
+  </section>
+
+  <!-- This month's class: filled in from the database by /js/site.js -->
+  <section class="band" id="class">
+    <div class="narrow center">
+      <h2 class="paint">Group classes are a great way to begin.</h2>
+      <p>Standup Studio LA Group Classes are the perfect way to dip your toe into the comedy world. If you have ever wanted to try comedy because all of your friends and family tell you that you are funny, this is the perfect way to prove it! Let us help you get a set together and take that first step! Class registrations are limited so that everyone gets a chance to perform, so don't wait!</p>
+    </div>
+    <div id="class-slot" class="class-slot" aria-live="polite">
+      <p class="loading">Loading this month's class…</p>
+    </div>
+  </section>
+
+  <!-- Private lessons: instructor cards filled in from the database -->
+  <section class="band" id="lessons">
+    <div class="narrow center">
+      <h2 class="paint">Options for private lessons at Standup Studio LA.</h2>
+      <p>Private lessons through Standup Studio LA are the best way to really focus on what you want to get better at. Whether it's writing, performing, the business or the branding, private lessons will let us develop a plan with you.</p>
+      <p>Buy your hour here, and your coach will reach out to set up a time that works for both of you.</p>
+    </div>
+    <div id="lessons-slot" class="lessons" aria-live="polite">
+      <p class="loading">Loading instructors…</p>
+    </div>
+  </section>
+
+  <section class="band" id="friends">
+    <div class="narrow center">
+      <h2 class="paint">Classes offered by our friends.</h2>
+      <p>In addition to our classes, we also have lots of friends who teach as well! The most important thing for anyone studying standup is to find the perfect fit for you. All of the growth and development happens when you find a nurturing, comfortable environment for you to explore your comic voice, regardless of who is offering that space.</p>
+    </div>
+    <div class="friends">
+      <a class="friend" href="https://craigshoemaker.com" target="_blank" rel="noopener">
+        <img src="https://standupstudiola.com/wp-content/uploads/2026/09/CRAIG-SHOEMAKER-HEADSHOT-POST.jpg" alt="Craig Shoemaker" width="400" height="400" loading="lazy">
+        <span class="friend-name">Craig Shoemaker</span>
+        <span class="friend-link">craigshoemaker.com</span>
+      </a>
+      <a class="friend" href="https://www.thebizstudio.us/marykennedy" target="_blank" rel="noopener">
+        <img src="https://standupstudiola.com/wp-content/uploads/2026/04/MARY-KENNEDY-2.jpg" alt="Mary Kennedy" width="400" height="400" loading="lazy">
+        <span class="friend-name">Mary Kennedy</span>
+        <span class="friend-link">The Biz Studio</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="band narrow center" id="newsletter">
+    <h2 class="paint">Get the newsletter.</h2>
+    <p>New classes, new instructors and the occasional good idea. No spam.</p>
+    <form id="signup" class="signup" novalidate>
+      <label class="sr" for="su-name">First name</label>
+      <input id="su-name" name="first_name" type="text" placeholder="First name" autocomplete="given-name">
+      <label class="sr" for="su-email">Email</label>
+      <input id="su-email" name="email" type="email" placeholder="Email" autocomplete="email" required>
+      <button class="btn" type="submit">Sign me up</button>
+      <p class="form-note" id="signup-note" role="status"></p>
+    </form>
+  </section>
+
+  <section class="band narrow" id="faq">
+    <h2 class="paint center">Frequently asked questions.</h2>
+    <details open>
+      <summary>I've never done standup before. Where should I start?</summary>
+      <p>If you've never been on a mic before, you're exactly the person we built Standup Studio LA for. Most first-timers start with either a single private session to get their feet wet or the next available beginner-friendly group class. Standup Studio LA offers numerous beginner-friendly options and instructors so you can find the perfect fit!</p>
+    </details>
+    <details>
+      <summary>Do I need material prepared before my first session?</summary>
+      <p>No. Standup Studio LA will help you through the entire process! You can come with a full notebook, half-written ideas, or absolutely nothing. We'll mine your stories, point of view, and life experiences together and turn them into jokes you can try on stage.</p>
+    </details>
+    <details>
+      <summary>Are sessions in person or online?</summary>
+      <p>The short answer is...both. Standup Studio LA offers private coaching and select group classes in person in Los Angeles, and also over Zoom for remote students. Make sure you check when you register what the instructor's requirements are. They will all note whether they offer a specific class only in-person or via Zoom as well.</p>
+    </details>
+    <details>
+      <summary>What if I'm not sure which coach to pick?</summary>
+      <p>What a great problem to have! Comedy instruction is all about finding the right fit! We encourage you to not only try our instructors, but also our friends in the area. Only you know what you are looking for and how the chemistry could work.</p>
+    </details>
+    <details>
+      <summary>Do you offer refunds?</summary>
+      <p>Standup Studio LA typically does not offer refunds for a variety of reasons, most notably that our class sizes are limited, and by booking, you are potentially taking the space of another student. Having said that, each instructor handles their own classes in their own way. We always want to work with you and make sure you are absolutely delighted!</p>
+    </details>
+    <details>
+      <summary>Are instructors employees of Standup Studio LA?</summary>
+      <p>Nope. Each instructor on the site is their own independent entity, meaning all purchases, negotiations, compliments and complaints go straight to them. Standup Studio LA makes no money off of their services, and does not vouch for or vet them as people or instructors. We are simply making you aware of instructors who offer classes in different niches in your area or on Zoom.</p>
+    </details>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>&copy; <span id="year">2026</span> Standup Studio LA</p>
+</footer>
+
+<script src="/js/site.js" defer></script>
+</body>
+</html>
