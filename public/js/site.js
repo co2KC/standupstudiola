@@ -139,12 +139,26 @@ function renderLessons(products, people, firstIds) {
   }).join("");
 }
 
-// Checkout is not built yet. This is where the button will hand off to Stripe.
-document.addEventListener("click", (e) => {
+// Buy buttons hand off to Stripe Checkout through the studio-checkout function.
+document.addEventListener("click", async (e) => {
   const btn = e.target.closest("[data-buy]");
-  if (!btn) return;
+  if (!btn || btn.disabled) return;
   const note = btn.closest("article").querySelector(".buy-note");
-  note.textContent = "Online checkout is being set up. Please check back soon.";
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = "One sec…"; note.textContent = "";
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/studio-checkout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY },
+      body: JSON.stringify({ slug: btn.dataset.buy }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.url) throw new Error(data.error || "Could not start checkout. Please try again.");
+    location.href = data.url;
+  } catch (err) {
+    note.textContent = err.message;
+    btn.disabled = false; btn.textContent = label;
+  }
 });
 
 // Newsletter signup is not connected yet.
