@@ -169,6 +169,11 @@ details p { margin: 10px 0 0; }
 .footer { background: var(--black); color: #CFCFC2; padding: 34px 0; font-size: 14px; }
 .footer p { margin: 8px 0 0; }
 
+/* Mid widths: keep the mic clear of the headline and subline. */
+@media (max-width: 1100px) {
+  .stage-mic { left: 1%; height: 130%; }
+  .stage-stool { right: 1%; height: 88%; }
+}
 @media (max-width: 760px) {
   .feature, .feature.has-art, .steps { grid-template-columns: minmax(0, 1fr); }
   .stage-mic { left: -2%; height: 120%; }
