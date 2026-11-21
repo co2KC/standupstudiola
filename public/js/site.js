@@ -47,6 +47,17 @@ function classDates(dates) {
   };
 }
 
+// A location may end with a note in parentheses, e.g. "... CA 91401 (on the border of Studio City)".
+// The note is shown first; the map link uses only the address.
+function whereLine(location) {
+  if (!location) return "";
+  const m = location.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  const address = m ? m[1] : location;
+  const note = m ? m[2].charAt(0).toUpperCase() + m[2].slice(1) : "";
+  const link = `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}" target="_blank" rel="noopener">${esc(address)}</a>`;
+  return `<p class="facts where">${note ? `<strong>${esc(note)}</strong> &middot; ` : ""}${link}</p>`;
+}
+
 const buyButton = (product, cls = "") => `<button class="btn ${cls}" type="button" data-buy="${esc(product.slug)}">Sign me up</button>`;
 
 function renderClasses(products, people) {
@@ -73,7 +84,7 @@ function renderClasses(products, people) {
         <h3>${esc(p.theme || p.name)}</h3>
         <ol class="dates">${d.chips}</ol>
         <p class="facts"><strong>${esc(d.when)}</strong>${teachers.length ? ` &middot; taught by <strong>${esc(teachers.join(" & "))}</strong>` : ""}${p.capacity ? ` &middot; only ${p.capacity} spots` : ""}</p>
-        ${p.location ? `<p class="facts where"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.location)}" target="_blank" rel="noopener">${esc(p.location)}</a></p>` : ""}
+        ${whereLine(p.location)}
         ${p.description ? `<p>${esc(p.description)}</p>` : ""}
       </div>
       <div class="feature-buy">
