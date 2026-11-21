@@ -25,11 +25,24 @@ async function verified(raw: string, header: string | null, secret: string): Pro
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return new Response("POST only", { status: 405 });
-  const secret = Deno.env.get("STUDIO_STRIPE_WEBHOOK_SECRET");
+  // Trim in case the secret was pasted with a stray space or line break.
+  const secret = (Deno.env.get("STUDIO_STRIPE_WEBHOOK_SECRET") ?? "").trim();
   if (!secret) return new Response("Webhook is not set up yet.", { status: 503 });
 
   const raw = await req.text();
-  if (!(await verified(raw, req.headers.get("stripe-signature"), secret))) return new Response("Bad signature", { status: 400 });
+  const sigHeader = req.headers.get("stripe-signature");
+  if (!(await verified(raw, sigHeader, secret))) {
+    // Diagnostics only: never log the secret or the signature themselves.
+    const t = Number(sigHeader?.match(/t=(\d+)/)?.[1] ?? 0);
+    console.error("studio-stripe-webhook bad signature", JSON.stringify({
+      hasHeader: !!sigHeader,
+      secondsOff: t ? Math.round(Date.now() / 1000 - t) : null,
+      secretLooksLikeWhsec: secret.startsWith("whsec_"),
+      secretLength: secret.length,
+      bodyBytes: raw.length,
+    }));
+    return new Response("Bad signature", { status: 400 });
+  }
 
   const event = JSON.parse(raw);
   const obj = event.data?.object ?? {};
