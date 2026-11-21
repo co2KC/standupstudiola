@@ -1,8 +1,9 @@
 // Stand Up Studio LA: record sales that Stripe reports.
 // Stripe events: checkout.session.completed, checkout.session.async_payment_succeeded, charge.refunded
-// Secrets (Supabase > Edge Functions > Secrets): STUDIO_STRIPE_WEBHOOK_SECRET
+// Secrets (Supabase > Edge Functions > Secrets): STUDIO_STRIPE_WEBHOOK_SECRET, and optionally STUDIO_RESEND_API_KEY for emails
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { sendSaleEmails } from "./email.ts";
 
 const hex = (buf: ArrayBuffer) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 
@@ -72,15 +73,39 @@ Deno.serve(async (req: Request) => {
       }
 
       // The unique checkout session id makes a repeated webhook harmless.
-      const { error: buyErr } = await db.from("purchases").upsert({
+      const { data: recorded, error: buyErr } = await db.from("purchases").upsert({
         person_id: person!.id,
         product_id: obj.metadata.product_id,
         status: "paid",
         amount_paid_cents: obj.amount_total,
         stripe_checkout_session_id: obj.id,
         stripe_payment_intent_id: typeof obj.payment_intent === "string" ? obj.payment_intent : null,
-      }, { onConflict: "stripe_checkout_session_id", ignoreDuplicates: true });
+      }, { onConflict: "stripe_checkout_session_id", ignoreDuplicates: true }).select("id");
       if (buyErr) throw buyErr;
+
+      // Email only when this call actually recorded the sale, so a repeated webhook sends nothing twice.
+      // An email problem must never make Stripe think the sale failed.
+      if (recorded?.length) {
+        try {
+          const { data: product } = await db.from("products")
+            .select("kind, name, theme, location, duration_minutes, product_dates(starts_at, ends_at), product_instructors(people(first_name, last_name))")
+            .eq("id", obj.metadata.product_id).maybeSingle();
+          if (product) {
+            await sendSaleEmails({
+              buyerEmail: email,
+              buyerName: String(obj.customer_details?.name ?? "").trim(),
+              buyerPhone: obj.customer_details?.phone ?? null,
+              amountCents: obj.amount_total ?? 0,
+              product,
+              dates: product.product_dates ?? [],
+              // deno-lint-ignore no-explicit-any
+              instructors: (product.product_instructors ?? []).map((l: any) => l.people ? `${l.people.first_name} ${l.people.last_name}` : "").filter(Boolean),
+            });
+          }
+        } catch (mailErr) {
+          console.error("studio-stripe-webhook email failed", mailErr);
+        }
+      }
     } else if (event.type === "charge.refunded") {
       if (obj.refunded && typeof obj.payment_intent === "string") {
         const { error } = await db.from("purchases").update({ status: "refunded" }).eq("stripe_payment_intent_id", obj.payment_intent);
