@@ -22,10 +22,11 @@ Secrets live in Supabase > Edge Functions > Secrets: `STUDIO_STRIPE_SECRET_KEY`,
 Stripe webhook endpoint: `https://ycmijcfeqpuqmapmklfi.supabase.co/functions/v1/studio-stripe-webhook`
 (events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`).
 
+Coach and friend photos are in Supabase Storage, bucket `studio-site` (`coaches/<first-last>.jpg`, `friends/`).
+Newsletter signup posts to the `studio-signup` Edge Function, which adds the person to `studio.people`.
+
 ## Not done yet
 
-- Instructor and friend photos still load from the old WordPress site; move them into `public/images/`
 - Email to the studio when something sells (Stripe's own notifications cover this for now)
 - Stripe Connect for the other instructors
-- Newsletter signup is a form with nothing behind it
 - Admin section, weekly reminders, bulk email

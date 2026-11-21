@@ -77,11 +77,11 @@
       </div>
       <div class="friends">
         <a class="friend" href="https://craigshoemaker.com" target="_blank" rel="noopener">
-          <img src="https://standupstudiola.com/wp-content/uploads/2026/09/CRAIG-SHOEMAKER-HEADSHOT-POST.jpg" alt="" width="96" height="96" loading="lazy">
+          <img src="https://ycmijcfeqpuqmapmklfi.supabase.co/storage/v1/object/public/studio-site/friends/craig-shoemaker.jpg" alt="" width="96" height="96" loading="lazy">
           <span><strong>Craig Shoemaker</strong><em>craigshoemaker.com &rarr;</em></span>
         </a>
         <a class="friend" href="https://www.thebizstudio.us/marykennedy" target="_blank" rel="noopener">
-          <img src="https://standupstudiola.com/wp-content/uploads/2026/04/MARY-KENNEDY-2.jpg" alt="" width="96" height="96" loading="lazy">
+          <img src="https://ycmijcfeqpuqmapmklfi.supabase.co/storage/v1/object/public/studio-site/friends/mary-kennedy.jpg" alt="" width="96" height="96" loading="lazy">
           <span><strong>Mary Kennedy</strong><em>The Biz Studio &rarr;</em></span>
         </a>
       </div>
@@ -97,6 +97,8 @@
         <input id="su-name" name="first_name" type="text" placeholder="First name" autocomplete="given-name">
         <label class="sr" for="su-email">Email</label>
         <input id="su-email" name="email" type="email" placeholder="Email" autocomplete="email" required>
+        <!-- Hidden from people; bots fill it in and get ignored. -->
+        <input class="sr" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
         <button class="btn btn-mustard" type="submit">Sign me up</button>
         <p class="form-note" id="signup-note" role="status"></p>
       </form>

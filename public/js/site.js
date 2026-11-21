@@ -6,16 +6,9 @@ const SUPABASE_URL = "https://ycmijcfeqpuqmapmklfi.supabase.co";
 // Publishable key: safe in the browser. Row-level security decides what it can read.
 const SUPABASE_KEY = "sb_publishable_z8-rMJft2I9xKOv8rKAbtQ_1hzTy0_r";
 
-// TEMPORARY: images still load from the old WordPress site. Move the files into
-// /public/images and change this to "/images/" before the old site is shut down.
-const IMG = "https://standupstudiola.com/wp-content/uploads/";
-const PHOTOS = {
-  "chris-oconnor": IMG + "2026/04/PRIVATE-LESSONS-CO2ISFUNNY-2-800PX.jpg",
-  "sommer-austin": IMG + "2026/04/PRIVATE-LESSONS-SOMMER-2-800PX.jpg",
-  "mike-muratore": IMG + "2026/04/PRIVATE-LESSONS-MIKE-M-2-800PX.jpg",
-  "jim-mccaffree": IMG + "2026/04/JIM-MCCAFFREE-2.jpg",
-  "alice-cutler": IMG + "2026/05/ALICE-CUTLER-PROFILE.jpg",
-};
+// Coach photos live in Supabase Storage (bucket "studio-site"), named by the coach's name.
+const PHOTO_BASE = `${SUPABASE_URL}/storage/v1/object/public/studio-site/coaches/`;
+const photoFor = (person) => `${PHOTO_BASE}${slugName(person)}.jpg`;
 
 const TZ = "America/Los_Angeles";
 const $ = (id) => document.getElementById(id);
@@ -116,11 +109,11 @@ function renderLessons(products, people, firstIds) {
   const rank = (c) => (firstIds.includes(c.person.id) ? 0 : 1);
   cards.sort((x, y) => rank(x) - rank(y) || fullName(x.person).localeCompare(fullName(y.person)));
   slot.innerHTML = cards.map(({ p, person }) => {
-    const photo = PHOTOS[slugName(person)];
+    const photo = photoFor(person);
     const { facts, paras } = splitBio(person.bio);
     return `
       <article class="coach">
-        ${photo ? `<img src="${photo}" alt="${esc(fullName(person))}" width="600" height="600" loading="lazy">` : ""}
+        <img src="${photo}" alt="${esc(fullName(person))}" width="600" height="600" loading="lazy" onerror="this.remove()">
         <div class="coach-body">
           <h3>${esc(fullName(person))}</h3>
           <dl>
@@ -161,10 +154,27 @@ document.addEventListener("click", async (e) => {
   }
 });
 
-// Newsletter signup is not connected yet.
-$("signup").addEventListener("submit", (e) => {
+// Newsletter signup: adds the person to the studio's list.
+$("signup").addEventListener("submit", async (e) => {
   e.preventDefault();
-  $("signup-note").textContent = "Signup is being set up. Please check back soon.";
+  const form = e.currentTarget, note = $("signup-note"), btn = form.querySelector("button");
+  const data = Object.fromEntries(new FormData(form));
+  btn.disabled = true; note.textContent = "";
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/studio-signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY },
+      body: JSON.stringify(data),
+    });
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(out.error || "Something went wrong. Please try again.");
+    form.reset();
+    note.textContent = "You're on the list. We'll be in touch.";
+  } catch (err) {
+    note.textContent = err.message;
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 $("year").textContent = new Date().getFullYear();
