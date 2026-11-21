@@ -123,6 +123,8 @@ p { margin: 0 0 1em; }
 .dates small { display: block; font-family: var(--type); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; }
 .dates b { font-size: 20px; }
 .facts { margin: 0; }
+.facts.where { margin-top: 6px; }
+.facts.where a { color: var(--olive); font-weight: 600; }
 .feature-buy { background: var(--tooth), var(--paint); color: var(--cream); padding: clamp(22px, 4vw, 38px); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 6px; }
 .bigprice { font-family: var(--head); font-size: clamp(54px, 8vw, 76px); line-height: 1; color: var(--mustard); }
 .feature-buy .btn { margin-top: 14px; align-self: stretch; }

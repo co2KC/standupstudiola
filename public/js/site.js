@@ -27,7 +27,7 @@ async function api(path) {
 
 async function loadCatalog() {
   const [products, instructors] = await Promise.all([
-    api("products?select=id,slug,name,kind,theme,description,duration_minutes,price_cents,capacity,image_url,product_dates(starts_at,ends_at),product_instructors(person_id)&status=eq.published"),
+    api("products?select=id,slug,name,kind,theme,description,duration_minutes,price_cents,capacity,image_url,location,product_dates(starts_at,ends_at),product_instructors(person_id)&status=eq.published"),
     api("public_instructors?select=id,first_name,last_name,bio,website_url,public_email"),
   ]);
   return { products, instructors };
@@ -73,6 +73,7 @@ function renderClasses(products, people) {
         <h3>${esc(p.theme || p.name)}</h3>
         <ol class="dates">${d.chips}</ol>
         <p class="facts"><strong>${esc(d.when)}</strong>${teachers.length ? ` &middot; taught by <strong>${esc(teachers.join(" & "))}</strong>` : ""}${p.capacity ? ` &middot; only ${p.capacity} spots` : ""}</p>
+        ${p.location ? `<p class="facts where"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.location)}" target="_blank" rel="noopener">${esc(p.location)}</a></p>` : ""}
         ${p.description ? `<p>${esc(p.description)}</p>` : ""}
       </div>
       <div class="feature-buy">
